@@ -1,0 +1,8 @@
+eoko_aws_mail:
+    use_environment: boolean
+    default_sender_email: email
+    default_sender_name: string
+    configuration:
+        access_key_id: string
+        secret_access_key: string
+        region: string

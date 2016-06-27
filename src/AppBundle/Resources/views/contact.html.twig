@@ -1,0 +1,106 @@
+{% extends "AppBundle::layout.html.twig" %}
+
+{% block title 'Contact'|trans %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <h1>{% trans %}Formulaire de contact{% endtrans %}</h1>
+        </div>
+    </div>
+        
+    <form id="form_sub" method="POST" action="{{ path('contact_sub') }}">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                  <label for="recipient_name">{% trans %}Nom{% endtrans %}</label>
+                  <div class="error"></div>
+                  <input name="recipient_name" type="text" class="form-control" placeholder="{{ 'Nom'|trans }}">
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                  <label for="recipient">{% trans %}Email{% endtrans %}</label>
+                  <div class="error"></div>
+                  <input name="recipient" type="email" class="form-control" placeholder="{{ 'Email'|trans }}">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="subject">{% trans %}Sujet{% endtrans %}</label>
+                    <div class="error"></div>
+                    <input name="subject" type="text" class="form-control" placeholder="{{ 'sujet'|trans }}">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="message">{% trans %}Message{% endtrans %}</label>
+                    <div class="error"></div>
+                    <textarea class="form-control" placeholder="Message" name="{{ 'message'|trans }}"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <button class="btn btn-primary pull-right" type="submit">{% trans %}Envoyer{% endtrans %}</button>
+            </div>
+        </div>
+    </form>
+    <div class="row" style="display: none" id="success">
+        <div class="col-md-12">
+            {% trans %}Demande envoyée{% endtrans %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block footer %}
+    <script type="text/javascript">
+        (function(){ 
+            $('#form_sub').submit(function($evt){
+                $evt.preventDefault();
+                
+                var $form = $(this);
+                var data = $form.serializeArray();
+                var out  = {};
+                
+                data.forEach(function(element){
+                    out[element.name] = element.value;
+                });
+                
+                $.ajax({
+                    url:  $form.attr('action'),
+                    type: $form.attr('method'),
+                    dataType: 'json',
+                    data: JSON.stringify(out),
+                    success: function(data){
+                        if (data.results.success) {
+                            $form.hide();
+                            $('#success').show();
+                        }
+                    },
+                    error: function(err){
+                        var response = err.responseJSON.errors;
+                        
+                        $('.error').hide();
+                        $('.has-error').removeClass('has-error');
+                        
+                        response.forEach(function(el) {
+                            $('[name="' + el.field + '"]').parents('.form-group').first()
+                                                          .addClass('has-error')
+                                                          .find('.error')
+                                                          .html(el.message)
+                                                          .show();
+                        });
+                    }
+                });
+                
+                return false;
+            });            
+        })();
+    </script>
+{% endblock %}
